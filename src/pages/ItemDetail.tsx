@@ -4,13 +4,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import ClaimModal from '@/components/ClaimModal';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Calendar, Tag } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { ArrowLeft, MapPin, Calendar, Tag, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [item, setItem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [claimOpen, setClaimOpen] = useState(false);
@@ -84,6 +89,33 @@ const ItemDetail = () => {
             <Button onClick={() => setClaimOpen(true)} className="gradient-primary text-primary-foreground mt-4" size="lg">
               Claim This Item
             </Button>
+          )}
+
+          {(isAdmin || user?.id === item.user_id) && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="mt-4 gap-2" size="lg">
+                  <Trash2 className="w-4 h-4" /> Delete Item
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete "{item.title}"?</AlertDialogTitle>
+                  <AlertDialogDescription>This action cannot be undone. The item will be permanently removed.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={async () => {
+                      const { error } = await supabase.from('items').delete().eq('id', item.id);
+                      if (error) toast.error('Failed to delete');
+                      else { toast.success('Item deleted'); navigate(-1); }
+                    }}
+                  >Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </div>
