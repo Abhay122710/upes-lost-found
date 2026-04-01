@@ -24,6 +24,7 @@ const DashboardLayout = ({ isAdmin = false }: DashboardLayoutProps) => {
         { icon: LayoutDashboard, label: 'Dashboard', path: prefix },
         { icon: Package, label: 'All Items', path: `${prefix}/items` },
         { icon: Shield, label: 'Claims', path: `${prefix}/claims` },
+        { icon: Trash2, label: 'Deleted Posts', path: `${prefix}/deleted` },
       ]
     : [
         { icon: LayoutDashboard, label: 'Dashboard', path: prefix },
