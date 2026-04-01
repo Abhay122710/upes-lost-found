@@ -1,28 +1,36 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import ItemCard from '@/components/ItemCard';
 import { toast } from 'sonner';
+import { itemService, type Item } from '@/services/itemService';
 
 const MyPosts = () => {
   const { user } = useAuth();
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchMyItems = async () => {
     if (!user) return;
     setLoading(true);
-    const { data } = await supabase.from('items').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-    setItems(data || []);
+    try {
+      const data = await itemService.getItemsByUser(user.id);
+      setItems(data);
+    } catch {
+      toast.error('Failed to load posts');
+    }
     setLoading(false);
   };
 
   useEffect(() => { fetchMyItems(); }, [user]);
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from('items').delete().eq('id', id);
-    if (error) toast.error('Failed to delete');
-    else { toast.success('Item deleted'); fetchMyItems(); }
+    try {
+      await itemService.deleteItem(id);
+      toast.success('Item deleted');
+      fetchMyItems();
+    } catch {
+      toast.error('Failed to delete');
+    }
   };
 
   return (

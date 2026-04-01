@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import ItemCard from '@/components/ItemCard';
 import AddItemModal from '@/components/AddItemModal';
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { itemService, type Item } from '@/services/itemService';
 
 interface ItemsPageProps {
   type: 'lost' | 'found';
@@ -19,22 +19,23 @@ const LOCATIONS = ['Library', 'Hostel', 'Cafeteria', 'Main Building', 'Sports Co
 
 const ItemsPage = ({ type }: ItemsPageProps) => {
   const { user, isAdmin } = useAuth();
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [claimItem, setClaimItem] = useState<any>(null);
-  const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [deleteItem, setDeleteItem] = useState<Item | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterLocation, setFilterLocation] = useState('all');
 
   const fetchItems = async () => {
     setLoading(true);
-    let query = supabase.from('items').select('*').eq('type', type).order('created_at', { ascending: false });
-    if (filterCategory !== 'all') query = query.eq('category', filterCategory);
-    if (filterLocation !== 'all') query = query.eq('location', filterLocation);
-    const { data } = await query;
-    setItems(data || []);
+    try {
+      const data = await itemService.getItems({ type, category: filterCategory, location: filterLocation });
+      setItems(data);
+    } catch {
+      toast.error('Failed to load items');
+    }
     setLoading(false);
   };
 
@@ -94,31 +95,12 @@ const ItemsPage = ({ type }: ItemsPageProps) => {
           onClose={() => setDeleteItem(null)}
           onConfirm={async (reason: string) => {
             setDeleteLoading(true);
-            const { error: insertError } = await supabase.from('deleted_items').insert({
-              original_item_id: deleteItem.id,
-              title: deleteItem.title,
-              description: deleteItem.description,
-              category: deleteItem.category,
-              location: deleteItem.location,
-              date: deleteItem.date,
-              type: deleteItem.type,
-              image_url: deleteItem.image_url,
-              status: deleteItem.status,
-              original_user_id: deleteItem.user_id,
-              deleted_by: user!.id,
-              deletion_reason: reason,
-            });
-            if (insertError) {
-              toast.error('Failed to archive item');
-              setDeleteLoading(false);
-              return;
-            }
-            const { error } = await supabase.from('items').delete().eq('id', deleteItem.id);
-            if (error) {
-              toast.error('Failed to delete item');
-            } else {
+            try {
+              await itemService.archiveAndDelete(deleteItem, user!.id, reason);
               toast.success('Item deleted and archived');
               fetchItems();
+            } catch {
+              toast.error('Failed to delete item');
             }
             setDeleteLoading(false);
             setDeleteItem(null);

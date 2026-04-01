@@ -1,27 +1,18 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Package, Search, Shield, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { statsService, type DashboardStats } from '@/services/statsService';
 
 const DashboardHome = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ lost: 0, found: 0, claims: 0, resolved: 0 });
+  const [stats, setStats] = useState<DashboardStats>({ lost: 0, found: 0, claims: 0, resolved: 0 });
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [lost, found, claims, resolved] = await Promise.all([
-        supabase.from('items').select('id', { count: 'exact', head: true }).eq('type', 'lost'),
-        supabase.from('items').select('id', { count: 'exact', head: true }).eq('type', 'found'),
-        supabase.from('claims').select('id', { count: 'exact', head: true }).eq('user_id', user?.id || ''),
-        supabase.from('items').select('id', { count: 'exact', head: true }).eq('status', 'resolved'),
-      ]);
-      setStats({
-        lost: lost.count || 0,
-        found: found.count || 0,
-        claims: claims.count || 0,
-        resolved: resolved.count || 0,
-      });
+      if (!user) return;
+      const data = await statsService.getDashboardStats(user.id);
+      setStats(data);
     };
     fetchStats();
   }, [user]);

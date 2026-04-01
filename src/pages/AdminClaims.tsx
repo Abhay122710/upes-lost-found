@@ -1,33 +1,21 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { CheckCircle, XCircle, Clock, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
+import { claimService, type Claim } from '@/services/claimService';
 
 const AdminClaims = () => {
-  const [claims, setClaims] = useState<any[]>([]);
+  const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchClaims = async () => {
     setLoading(true);
-    const { data: claimsData } = await supabase
-      .from('claims')
-      .select('*, items(title, image_url, location)')
-      .order('created_at', { ascending: false });
-
-    if (claimsData && claimsData.length > 0) {
-      // Fetch profiles for claim users
-      const userIds = [...new Set(claimsData.map(c => c.user_id))];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, name, sap_id')
-        .in('user_id', userIds);
-
-      const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
-      setClaims(claimsData.map(c => ({ ...c, profile: profileMap.get(c.user_id) || null })));
-    } else {
-      setClaims([]);
+    try {
+      const data = await claimService.getAllClaims();
+      setClaims(data);
+    } catch {
+      toast.error('Failed to load claims');
     }
     setLoading(false);
   };
@@ -35,13 +23,13 @@ const AdminClaims = () => {
   useEffect(() => { fetchClaims(); }, []);
 
   const updateStatus = async (id: string, status: 'approved' | 'rejected', itemId?: string) => {
-    const { error } = await supabase.from('claims').update({ status }).eq('id', id);
-    if (error) { toast.error('Failed to update'); return; }
-    if (status === 'approved' && itemId) {
-      await supabase.from('items').update({ status: 'claimed' }).eq('id', itemId);
+    try {
+      await claimService.updateClaimStatus(id, status, itemId);
+      toast.success(`Claim ${status}`);
+      fetchClaims();
+    } catch {
+      toast.error('Failed to update');
     }
-    toast.success(`Claim ${status}`);
-    fetchClaims();
   };
 
   return (

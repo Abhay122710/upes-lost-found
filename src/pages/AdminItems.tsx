@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import ItemCard from '@/components/ItemCard';
 import AddItemModal from '@/components/AddItemModal';
@@ -8,21 +7,26 @@ import DeleteWithReasonDialog from '@/components/DeleteWithReasonDialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { itemService, type Item } from '@/services/itemService';
 
 const AdminItems = () => {
   const { user } = useAuth();
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [addType, setAddType] = useState<'lost' | 'found'>('found');
-  const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [deleteItem, setDeleteItem] = useState<Item | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [claimItem, setClaimItem] = useState<any>(null);
 
   const fetchItems = async () => {
     setLoading(true);
-    const { data } = await supabase.from('items').select('*').order('created_at', { ascending: false });
-    setItems(data || []);
+    try {
+      const data = await itemService.getItems();
+      setItems(data);
+    } catch {
+      toast.error('Failed to load items');
+    }
     setLoading(false);
   };
 
@@ -31,36 +35,12 @@ const AdminItems = () => {
   const handleAdminDelete = async (reason: string) => {
     if (!deleteItem || !user) return;
     setDeleteLoading(true);
-
-    // Store in deleted_items first
-    const { error: insertError } = await supabase.from('deleted_items').insert({
-      original_item_id: deleteItem.id,
-      title: deleteItem.title,
-      description: deleteItem.description,
-      category: deleteItem.category,
-      location: deleteItem.location,
-      date: deleteItem.date,
-      type: deleteItem.type,
-      image_url: deleteItem.image_url,
-      status: deleteItem.status,
-      original_user_id: deleteItem.user_id,
-      deleted_by: user.id,
-      deletion_reason: reason,
-    });
-
-    if (insertError) {
-      toast.error('Failed to archive item');
-      setDeleteLoading(false);
-      return;
-    }
-
-    // Then delete the original
-    const { error } = await supabase.from('items').delete().eq('id', deleteItem.id);
-    if (error) {
-      toast.error('Failed to delete item');
-    } else {
+    try {
+      await itemService.archiveAndDelete(deleteItem, user.id, reason);
       toast.success('Item deleted and archived');
       fetchItems();
+    } catch {
+      toast.error('Failed to delete item');
     }
     setDeleteLoading(false);
     setDeleteItem(null);

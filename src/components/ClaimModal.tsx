@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Upload } from 'lucide-react';
+import { claimService } from '@/services/claimService';
+import { storageService } from '@/services/storageService';
 
 interface ClaimModalProps {
   item: any;
@@ -34,30 +35,24 @@ const ClaimModal = ({ item, onClose, onSuccess }: ClaimModalProps) => {
     if (!user) return;
     setLoading(true);
 
-    let proofUrl: string | null = null;
-    if (proofImage) {
-      const fileExt = proofImage.name.split('.').pop();
-      const filePath = `claims/${user.id}/${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('item-images').upload(filePath, proofImage);
-      if (!uploadError) {
-        const { data } = supabase.storage.from('item-images').getPublicUrl(filePath);
-        proofUrl = data.publicUrl;
+    try {
+      let proofUrl: string | null = null;
+      if (proofImage) {
+        proofUrl = await storageService.uploadClaimProof(user.id, proofImage);
       }
-    }
 
-    const { error } = await supabase.from('claims').insert({
-      item_id: item.id,
-      user_id: user.id,
-      description,
-      proof_image_url: proofUrl,
-    });
+      await claimService.createClaim({
+        item_id: item.id,
+        user_id: user.id,
+        description,
+        proof_image_url: proofUrl,
+      });
 
-    if (error) {
-      toast.error('Failed to submit claim');
-    } else {
       toast.success('Claim submitted! Awaiting admin verification.');
       onSuccess();
       onClose();
+    } catch {
+      toast.error('Failed to submit claim');
     }
     setLoading(false);
   };
