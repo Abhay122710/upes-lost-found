@@ -66,7 +66,21 @@ const ItemCard = ({ item, onClaim, onDelete }: ItemCardProps) => {
             <Button size="sm" onClick={onClaim} className="gradient-primary text-primary-foreground">Claim Item</Button>
           )}
           {onDelete && (
-            <Button size="sm" variant="destructive" onClick={onDelete}>Delete</Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="destructive">Delete</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete "{item.title}"?</AlertDialogTitle>
+                  <AlertDialogDescription>This action cannot be undone. The item will be permanently removed.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </div>
