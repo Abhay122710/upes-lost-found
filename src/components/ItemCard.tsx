@@ -1,26 +1,21 @@
-import { MapPin, Calendar } from 'lucide-react';
+import { MapPin, Calendar, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
 interface ItemCardProps {
   item: any;
   onClaim?: () => void;
   onDelete?: () => void;
+  onAdminDelete?: () => void;
+  showAdminX?: boolean;
 }
 
-const ItemCard = ({ item, onClaim, onDelete }: ItemCardProps) => {
+const ItemCard = ({ item, onClaim, onDelete, onAdminDelete, showAdminX }: ItemCardProps) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
@@ -29,11 +24,21 @@ const ItemCard = ({ item, onClaim, onDelete }: ItemCardProps) => {
 
   return (
     <motion.div
-      className="bg-card rounded-2xl border border-border/50 overflow-hidden hover-lift cursor-pointer"
+      className="bg-card rounded-2xl border border-border/50 overflow-hidden hover-lift cursor-pointer relative group"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       onClick={handleCardClick}
     >
+      {/* Admin X button */}
+      {showAdminX && onAdminDelete && (
+        <button
+          onClick={e => { e.stopPropagation(); onAdminDelete(); }}
+          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-destructive/90 text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-destructive"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
+
       {item.image_url ? (
         <img src={item.image_url} alt={item.title} className="w-full h-48 object-cover" />
       ) : (
