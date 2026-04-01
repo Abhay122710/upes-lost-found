@@ -60,6 +60,8 @@ const App = () => (
               <Route index element={<AdminDashboard />} />
               <Route path="items" element={<AdminItems />} />
               <Route path="claims" element={<AdminClaims />} />
+              <Route path="deleted" element={<AdminDeletedPosts />} />
+              <Route path="item/:id" element={<ItemDetail />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
