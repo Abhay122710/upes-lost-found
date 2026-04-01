@@ -1,6 +1,7 @@
 import { MapPin, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface ItemCardProps {
   item: any;
@@ -9,11 +10,18 @@ interface ItemCardProps {
 }
 
 const ItemCard = ({ item, onClaim, onDelete }: ItemCardProps) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/dashboard/item/${item.id}`);
+  };
+
   return (
     <motion.div
-      className="bg-card rounded-2xl border border-border/50 overflow-hidden hover-lift"
+      className="bg-card rounded-2xl border border-border/50 overflow-hidden hover-lift cursor-pointer"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      onClick={handleCardClick}
     >
       {item.image_url ? (
         <img src={item.image_url} alt={item.title} className="w-full h-48 object-cover" />
@@ -42,7 +50,7 @@ const ItemCard = ({ item, onClaim, onDelete }: ItemCardProps) => {
             item.status === 'active' ? 'bg-secondary/10 text-secondary' : 'bg-accent/20 text-accent-foreground'
           }`}>{item.status}</span>
         </div>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex gap-2" onClick={e => e.stopPropagation()}>
           {onClaim && item.status === 'active' && (
             <Button size="sm" onClick={onClaim} className="gradient-primary text-primary-foreground">Claim Item</Button>
           )}
