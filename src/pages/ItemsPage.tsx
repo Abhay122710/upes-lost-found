@@ -75,7 +75,7 @@ const ItemsPage = ({ type }: ItemsPageProps) => {
             <ItemCard
               key={item.id}
               item={item}
-              onClaim={type === 'found' ? () => setClaimItem(item) : undefined}
+              onClaim={item.status === 'active' ? () => setClaimItem(item) : undefined}
             />
           ))}
         </div>
