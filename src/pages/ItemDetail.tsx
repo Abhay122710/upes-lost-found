@@ -90,6 +90,33 @@ const ItemDetail = () => {
               Claim This Item
             </Button>
           )}
+
+          {(isAdmin || user?.id === item.user_id) && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="mt-4 gap-2" size="lg">
+                  <Trash2 className="w-4 h-4" /> Delete Item
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete "{item.title}"?</AlertDialogTitle>
+                  <AlertDialogDescription>This action cannot be undone. The item will be permanently removed.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={async () => {
+                      const { error } = await supabase.from('items').delete().eq('id', item.id);
+                      if (error) toast.error('Failed to delete');
+                      else { toast.success('Item deleted'); navigate(-1); }
+                    }}
+                  >Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </div>
 
