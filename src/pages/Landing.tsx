@@ -141,12 +141,9 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border">
-        <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src={upesLogo} alt="UPES" className="h-8 w-8 rounded-lg object-contain" />
-            <span className="font-semibold text-foreground">UPES Lost & Found</span>
-          </div>
-          <p className="text-sm text-muted-foreground">© 2026 UPES Lost & Found System. Built for UPES students.</p>
+        <div className="container mx-auto flex items-center justify-center gap-3">
+          <img src={upesLogo} alt="UPES" className="h-8 w-8 rounded-lg object-contain" />
+          <span className="font-semibold text-foreground">UPES Lost & Found</span>
         </div>
       </footer>
     </div>
