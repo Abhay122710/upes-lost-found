@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, Search as SearchIcon, Package, FileText, Shield, LogOut, Menu, X, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Search as SearchIcon, Package, FileText, Shield, LogOut, Menu, X, MessageCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import upesLogo from '@/assets/upes-logo.jpeg';
