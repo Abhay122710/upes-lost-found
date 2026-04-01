@@ -9,7 +9,7 @@ const AdminItems = () => {
 
   const fetchItems = async () => {
     setLoading(true);
-    const { data } = await supabase.from('items').select('*, profiles(name, sap_id)').order('created_at', { ascending: false });
+    const { data } = await supabase.from('items').select('*').order('created_at', { ascending: false });
     setItems(data || []);
     setLoading(false);
   };

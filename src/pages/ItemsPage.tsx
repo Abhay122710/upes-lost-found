@@ -27,7 +27,7 @@ const ItemsPage = ({ type }: ItemsPageProps) => {
 
   const fetchItems = async () => {
     setLoading(true);
-    let query = supabase.from('items').select('*, profiles(name, sap_id)').eq('type', type).order('created_at', { ascending: false });
+    let query = supabase.from('items').select('*').eq('type', type).order('created_at', { ascending: false });
     if (filterCategory !== 'all') query = query.eq('category', filterCategory);
     if (filterLocation !== 'all') query = query.eq('location', filterLocation);
     const { data } = await query;
