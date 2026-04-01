@@ -11,11 +11,24 @@ const AdminClaims = () => {
 
   const fetchClaims = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data: claimsData } = await supabase
       .from('claims')
-      .select('*, items(title, image_url, location), profiles:user_id(name, sap_id)')
+      .select('*, items(title, image_url, location)')
       .order('created_at', { ascending: false });
-    setClaims(data || []);
+
+    if (claimsData && claimsData.length > 0) {
+      // Fetch profiles for claim users
+      const userIds = [...new Set(claimsData.map(c => c.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, name, sap_id')
+        .in('user_id', userIds);
+
+      const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
+      setClaims(claimsData.map(c => ({ ...c, profile: profileMap.get(c.user_id) || null })));
+    } else {
+      setClaims([]);
+    }
     setLoading(false);
   };
 
@@ -35,7 +48,7 @@ const AdminClaims = () => {
     <div>
       <h1 className="text-2xl font-bold text-foreground mb-6">Claims Management</h1>
       {loading ? (
-        <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="h-24 bg-muted rounded-2xl animate-pulse" />)}</div>
+        <div className="space-y-4">{[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted rounded-2xl animate-pulse" />)}</div>
       ) : claims.length === 0 ? (
         <p className="text-center py-20 text-muted-foreground">No claims yet.</p>
       ) : (
@@ -57,7 +70,7 @@ const AdminClaims = () => {
                   )}
                   <div className="flex-1">
                     <h3 className="font-semibold text-foreground">{claim.items?.title || 'Item'}</h3>
-                    <p className="text-sm text-muted-foreground">Claimed by: {(claim.profiles as any)?.name} ({(claim.profiles as any)?.sap_id})</p>
+                    <p className="text-sm text-muted-foreground">Claimed by: {claim.profile?.name || 'Unknown'} ({claim.profile?.sap_id || 'N/A'})</p>
                     <p className="text-sm text-muted-foreground mt-1">{claim.description}</p>
                     {claim.proof_image_url && (
                       <a href={claim.proof_image_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary flex items-center gap-1 mt-1">

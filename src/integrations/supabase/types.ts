@@ -55,6 +55,60 @@ export type Database = {
           },
         ]
       }
+      deleted_items: {
+        Row: {
+          category: string
+          created_at: string
+          date: string
+          deleted_at: string
+          deleted_by: string
+          deletion_reason: string
+          description: string
+          id: string
+          image_url: string | null
+          location: string
+          original_item_id: string
+          original_user_id: string
+          status: string
+          title: string
+          type: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          date: string
+          deleted_at?: string
+          deleted_by: string
+          deletion_reason: string
+          description: string
+          id?: string
+          image_url?: string | null
+          location: string
+          original_item_id: string
+          original_user_id: string
+          status?: string
+          title: string
+          type: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date?: string
+          deleted_at?: string
+          deleted_by?: string
+          deletion_reason?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          location?: string
+          original_item_id?: string
+          original_user_id?: string
+          status?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           category: string

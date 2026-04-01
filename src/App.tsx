@@ -17,6 +17,7 @@ import ItemDetail from "./pages/ItemDetail";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminItems from "./pages/AdminItems";
 import AdminClaims from "./pages/AdminClaims";
+import AdminDeletedPosts from "./pages/AdminDeletedPosts";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 
@@ -59,6 +60,8 @@ const App = () => (
               <Route index element={<AdminDashboard />} />
               <Route path="items" element={<AdminItems />} />
               <Route path="claims" element={<AdminClaims />} />
+              <Route path="deleted" element={<AdminDeletedPosts />} />
+              <Route path="item/:id" element={<ItemDetail />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
