@@ -17,6 +17,7 @@ import ItemDetail from "./pages/ItemDetail";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminItems from "./pages/AdminItems";
 import AdminClaims from "./pages/AdminClaims";
+import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
 
             {/* Student Dashboard */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
