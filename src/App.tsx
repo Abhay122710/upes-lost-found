@@ -13,6 +13,7 @@ import DashboardHome from "./pages/DashboardHome";
 import ItemsPage from "./pages/ItemsPage";
 import MyPosts from "./pages/MyPosts";
 import MyClaims from "./pages/MyClaims";
+import ItemDetail from "./pages/ItemDetail";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminItems from "./pages/AdminItems";
 import AdminClaims from "./pages/AdminClaims";
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="found" element={<ItemsPage type="found" />} />
               <Route path="my-posts" element={<MyPosts />} />
               <Route path="claims" element={<MyClaims />} />
+              <Route path="item/:id" element={<ItemDetail />} />
             </Route>
 
             {/* Admin Dashboard */}
