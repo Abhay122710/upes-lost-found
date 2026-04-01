@@ -13,7 +13,7 @@ const AdminClaims = () => {
     setLoading(true);
     const { data } = await supabase
       .from('claims')
-      .select('*, items(title, image_url, location), profiles:user_id(name, sap_id)')
+      .select('*, items(title, image_url, location)')
       .order('created_at', { ascending: false });
     setClaims(data || []);
     setLoading(false);
