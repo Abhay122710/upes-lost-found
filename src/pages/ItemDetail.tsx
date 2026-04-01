@@ -4,7 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import ClaimModal from '@/components/ClaimModal';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Calendar, Tag } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { ArrowLeft, MapPin, Calendar, Tag, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 const ItemDetail = () => {
