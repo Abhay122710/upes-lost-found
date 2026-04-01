@@ -33,7 +33,7 @@ const ItemCard = ({ item, onClaim, onDelete, onAdminDelete, showAdminX }: ItemCa
       {showAdminX && onAdminDelete && (
         <button
           onClick={e => { e.stopPropagation(); onAdminDelete(); }}
-          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-destructive/90 text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-destructive"
+          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-destructive/90 text-destructive-foreground flex items-center justify-center shadow-lg hover:bg-destructive transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
