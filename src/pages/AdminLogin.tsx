@@ -89,12 +89,6 @@ const AdminLogin = () => {
             {loading ? 'Signing in...' : 'Sign In as Admin'}
           </Button>
 
-          <div className="bg-muted/50 rounded-xl p-4 border border-border/50 mt-4">
-            <p className="text-xs font-medium text-muted-foreground mb-1">Default Admin Credentials:</p>
-            <p className="text-sm text-foreground font-mono">Username: <span className="text-primary font-semibold">admin</span></p>
-            <p className="text-sm text-foreground font-mono">Password: <span className="text-primary font-semibold">admin123</span></p>
-          </div>
-
           <div className="text-center text-sm">
             <Link to="/login" className="text-primary hover:underline">← Back to Student Login</Link>
           </div>
