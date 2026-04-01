@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ItemCard from '@/components/ItemCard';
 import AddItemModal from '@/components/AddItemModal';
 import ClaimModal from '@/components/ClaimModal';
+import DeleteWithReasonDialog from '@/components/DeleteWithReasonDialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
@@ -17,11 +18,13 @@ const CATEGORIES = ['Electronics', 'Books', 'Clothing', 'ID Cards', 'Keys', 'Bag
 const LOCATIONS = ['Library', 'Hostel', 'Cafeteria', 'Main Building', 'Sports Complex', 'Parking', 'Lab', 'Auditorium'];
 
 const ItemsPage = ({ type }: ItemsPageProps) => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [claimItem, setClaimItem] = useState<any>(null);
+  const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterLocation, setFilterLocation] = useState('all');
 
@@ -75,6 +78,8 @@ const ItemsPage = ({ type }: ItemsPageProps) => {
             <ItemCard
               key={item.id}
               item={item}
+              showAdminX={isAdmin}
+              onAdminDelete={isAdmin ? () => setDeleteItem(item) : undefined}
               onClaim={item.status === 'active' ? () => setClaimItem(item) : undefined}
             />
           ))}
@@ -82,6 +87,45 @@ const ItemsPage = ({ type }: ItemsPageProps) => {
       )}
 
       <AddItemModal open={addOpen} onClose={() => setAddOpen(false)} type={type} onSuccess={fetchItems} />
+      {deleteItem && (
+        <DeleteWithReasonDialog
+          open={!!deleteItem}
+          itemTitle={deleteItem.title}
+          onClose={() => setDeleteItem(null)}
+          onConfirm={async (reason: string) => {
+            setDeleteLoading(true);
+            const { error: insertError } = await supabase.from('deleted_items').insert({
+              original_item_id: deleteItem.id,
+              title: deleteItem.title,
+              description: deleteItem.description,
+              category: deleteItem.category,
+              location: deleteItem.location,
+              date: deleteItem.date,
+              type: deleteItem.type,
+              image_url: deleteItem.image_url,
+              status: deleteItem.status,
+              original_user_id: deleteItem.user_id,
+              deleted_by: user!.id,
+              deletion_reason: reason,
+            });
+            if (insertError) {
+              toast.error('Failed to archive item');
+              setDeleteLoading(false);
+              return;
+            }
+            const { error } = await supabase.from('items').delete().eq('id', deleteItem.id);
+            if (error) {
+              toast.error('Failed to delete item');
+            } else {
+              toast.success('Item deleted and archived');
+              fetchItems();
+            }
+            setDeleteLoading(false);
+            setDeleteItem(null);
+          }}
+          loading={deleteLoading}
+        />
+      )}
       {claimItem && <ClaimModal item={claimItem} onClose={() => setClaimItem(null)} onSuccess={fetchItems} />}
     </div>
   );
