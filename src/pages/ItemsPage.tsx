@@ -18,11 +18,13 @@ const CATEGORIES = ['Electronics', 'Books', 'Clothing', 'ID Cards', 'Keys', 'Bag
 const LOCATIONS = ['Library', 'Hostel', 'Cafeteria', 'Main Building', 'Sports Complex', 'Parking', 'Lab', 'Auditorium'];
 
 const ItemsPage = ({ type }: ItemsPageProps) => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [claimItem, setClaimItem] = useState<any>(null);
+  const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterLocation, setFilterLocation] = useState('all');
 
