@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { Trash2, MapPin, Calendar } from 'lucide-react';
+import { itemService } from '@/services/itemService';
 
 const AdminDeletedPosts = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -9,11 +9,8 @@ const AdminDeletedPosts = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase
-        .from('deleted_items')
-        .select('*')
-        .order('deleted_at', { ascending: false });
-      setItems(data || []);
+      const data = await itemService.getDeletedItems();
+      setItems(data);
       setLoading(false);
     };
     fetch();

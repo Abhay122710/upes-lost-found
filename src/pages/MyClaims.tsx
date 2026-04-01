@@ -1,23 +1,19 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { Clock, CheckCircle, XCircle } from 'lucide-react';
+import { claimService, type Claim } from '@/services/claimService';
 
 const MyClaims = () => {
   const { user } = useAuth();
-  const [claims, setClaims] = useState<any[]>([]);
+  const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchClaims = async () => {
       if (!user) return;
-      const { data } = await supabase
-        .from('claims')
-        .select('*, items(title, image_url, location)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      setClaims(data || []);
+      const data = await claimService.getClaimsByUser(user.id);
+      setClaims(data);
       setLoading(false);
     };
     fetchClaims();

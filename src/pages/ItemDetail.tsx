@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import ClaimModal from '@/components/ClaimModal';
 import { Button } from '@/components/ui/button';
@@ -11,19 +10,20 @@ import {
 import { ArrowLeft, MapPin, Calendar, Tag, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { itemService, type Item } from '@/services/itemService';
 
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
-  const [item, setItem] = useState<any>(null);
+  const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
   const [claimOpen, setClaimOpen] = useState(false);
 
   useEffect(() => {
     const fetchItem = async () => {
       if (!id) return;
-      const { data } = await supabase.from('items').select('*').eq('id', id).maybeSingle();
+      const data = await itemService.getItemById(id);
       setItem(data);
       setLoading(false);
     };
@@ -108,9 +108,13 @@ const ItemDetail = () => {
                   <AlertDialogAction
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     onClick={async () => {
-                      const { error } = await supabase.from('items').delete().eq('id', item.id);
-                      if (error) toast.error('Failed to delete');
-                      else { toast.success('Item deleted'); navigate(-1); }
+                      try {
+                        await itemService.deleteItem(item.id);
+                        toast.success('Item deleted');
+                        navigate(-1);
+                      } catch {
+                        toast.error('Failed to delete');
+                      }
                     }}
                   >Delete</AlertDialogAction>
                 </AlertDialogFooter>

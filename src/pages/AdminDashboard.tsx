@@ -1,20 +1,15 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Package, Shield, Users, TrendingUp } from 'lucide-react';
+import { Package, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { statsService, type AdminStats } from '@/services/statsService';
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({ total: 0, lost: 0, found: 0, pendingClaims: 0 });
+  const [stats, setStats] = useState<AdminStats>({ total: 0, lost: 0, found: 0, pendingClaims: 0 });
 
   useEffect(() => {
     const fetch = async () => {
-      const [total, lost, found, pending] = await Promise.all([
-        supabase.from('items').select('id', { count: 'exact', head: true }),
-        supabase.from('items').select('id', { count: 'exact', head: true }).eq('type', 'lost'),
-        supabase.from('items').select('id', { count: 'exact', head: true }).eq('type', 'found'),
-        supabase.from('claims').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-      ]);
-      setStats({ total: total.count || 0, lost: lost.count || 0, found: found.count || 0, pendingClaims: pending.count || 0 });
+      const data = await statsService.getAdminStats();
+      setStats(data);
     };
     fetch();
   }, []);

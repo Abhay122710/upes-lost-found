@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Upload } from 'lucide-react';
+import { itemService } from '@/services/itemService';
+import { storageService } from '@/services/storageService';
 
 interface AddItemModalProps {
   open: boolean;
@@ -47,39 +48,29 @@ const AddItemModal = ({ open, onClose, type, onSuccess }: AddItemModalProps) => 
     }
     setLoading(true);
 
-    let imageUrl: string | null = null;
-    if (image) {
-      const fileExt = image.name.split('.').pop();
-      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('item-images').upload(filePath, image);
-      if (uploadError) {
-        toast.error('Image upload failed');
-        setLoading(false);
-        return;
+    try {
+      let imageUrl: string | null = null;
+      if (image) {
+        imageUrl = await storageService.uploadItemImage(user.id, image);
       }
-      const { data: urlData } = supabase.storage.from('item-images').getPublicUrl(filePath);
-      imageUrl = urlData.publicUrl;
-    }
 
-    const { error } = await supabase.from('items').insert({
-      user_id: user.id,
-      title,
-      description,
-      category,
-      location,
-      date,
-      type,
-      image_url: imageUrl,
-    });
+      await itemService.createItem({
+        user_id: user.id,
+        title,
+        description,
+        category,
+        location,
+        date,
+        type,
+        image_url: imageUrl,
+      });
 
-    if (error) {
-      toast.error('Failed to add item');
-    } else {
       toast.success(`${type === 'lost' ? 'Lost' : 'Found'} item reported!`);
       onSuccess();
       onClose();
-      // Reset form
       setTitle(''); setDescription(''); setCategory(''); setLocation(''); setDate(''); setImage(null); setPreview(null);
+    } catch {
+      toast.error('Failed to add item');
     }
     setLoading(false);
   };
