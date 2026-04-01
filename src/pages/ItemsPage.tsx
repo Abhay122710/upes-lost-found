@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ItemCard from '@/components/ItemCard';
 import AddItemModal from '@/components/AddItemModal';
 import ClaimModal from '@/components/ClaimModal';
+import DeleteWithReasonDialog from '@/components/DeleteWithReasonDialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
