@@ -17,6 +17,7 @@ import ItemDetail from "./pages/ItemDetail";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminItems from "./pages/AdminItems";
 import AdminClaims from "./pages/AdminClaims";
+import AdminDeletedPosts from "./pages/AdminDeletedPosts";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 
