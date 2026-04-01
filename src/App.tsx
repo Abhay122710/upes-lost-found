@@ -49,6 +49,7 @@ const App = () => (
               <Route path="found" element={<ItemsPage type="found" />} />
               <Route path="my-posts" element={<MyPosts />} />
               <Route path="claims" element={<MyClaims />} />
+              <Route path="item/:id" element={<ItemDetail />} />
             </Route>
 
             {/* Admin Dashboard */}
