@@ -58,6 +58,7 @@ const Login = () => {
             <p className="text-muted-foreground">
               Don't have an account? <Link to="/signup" className="text-primary hover:underline">Sign Up</Link>
             </p>
+            <Link to="/admin-login" className="text-muted-foreground hover:text-primary hover:underline block mt-3">Admin Login →</Link>
           </div>
         </form>
       </div>
