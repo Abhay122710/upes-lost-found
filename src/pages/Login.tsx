@@ -17,46 +17,6 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Admin hardcoded login
-    if (sapId === 'admin' && password === 'admin123') {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: 'admin@upes.ac.in',
-        password: 'admin123',
-      });
-      if (error) {
-        // If admin doesn't exist yet, create it
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: 'admin@upes.ac.in',
-          password: 'admin123',
-        });
-        if (signUpError) {
-          toast.error(signUpError.message);
-          setLoading(false);
-          return;
-        }
-        if (signUpData.user) {
-          // Create admin profile and role
-          await supabase.from('profiles').insert({
-            user_id: signUpData.user.id,
-            name: 'Admin',
-            sap_id: 'ADMIN001',
-            email: 'admin@upes.ac.in',
-            security_question: 'Admin account',
-            security_answer: 'admin',
-          });
-          await supabase.from('user_roles').insert({
-            user_id: signUpData.user.id,
-            role: 'admin',
-          });
-        }
-      }
-      toast.success('Welcome, Admin!');
-      navigate('/admin');
-      setLoading(false);
-      return;
-    }
-
-    // Regular student login: use SAP ID as email prefix
     const email = `${sapId.toLowerCase()}@student.upes.ac.in`;
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
